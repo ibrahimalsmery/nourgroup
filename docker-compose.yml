@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Use build cache for faster composer installs
+    container_name: nourgroup_app
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - nourgroup
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nourgroup_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - nourgroup
+
+  db:
+    image: postgres:15
+    container_name: nourgroup_db
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-nourgroup}
+      POSTGRES_USER: ${DB_USERNAME:-nourgroup}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - nourgroup
+
+  node:
+    image: node:22-alpine
+    container_name: nourgroup_node
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: npm run dev
+    ports:
+      - 5173:5173
+    networks:
+      - nourgroup
+
+volumes:
+  db-data:
+
+networks:
+  nourgroup:
+    driver: bridge

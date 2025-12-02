@@ -1,0 +1,14 @@
+node_modules
+vendor
+storage/logs
+storage/framework/cache
+storage/framework/views
+.git
+.gitignore
+docker-compose.override.yml
+*.log
+npm-debug.log*
+pnpm-lock.yaml
+yarn.lock
+resources/js/**/*.map
+resources/css/**/*.map
